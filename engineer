@@ -1,0 +1,40 @@
+def load_dataset(path: str) -> pd.DataFrame:
+    """
+    Загружает датасет заказчика.
+    Замени путь на реальный файл из Google Drive.
+    """
+    try:
+        df = pd.read_csv(path, encoding="utf-8")
+        print(f"[OK] Загружено {len(df)} записей из {path}")
+        return df
+    except FileNotFoundError:
+        print(f"[!] Файл {path} не найден. Используем синтетические данные для демо.")
+        return generate_synthetic_data()
+ 
+ 
+def generate_synthetic_data(n: int = 50) -> pd.DataFrame:
+    """
+    Генерирует синтетические данные для демо.
+    ЗАМЕНИТЬ реальным датасетом заказчика!
+    """
+    np.random.seed(42)
+    regions = ["Акмолинская", "Алматинская", "Костанайская", "Павлодарская", "СКО"]
+    types = ["Растениеводство", "Животноводство", "Смешанное"]
+ 
+    df = pd.DataFrame({
+        "id":                   [f"KZ{1000+i}" for i in range(n)],
+        "name":                 [f"КХ/ТОО #{i+1}" for i in range(n)],
+        "region":               np.random.choice(regions, n),
+        "type":                 np.random.choice(types, n),
+        "area_ha":              np.random.randint(100, 10000, n),
+        "prev_subsidy_amount":  np.random.randint(0, 50_000_000, n),
+        "production_output":    np.random.randint(500, 100_000, n),
+        "production_3yr_ago":   np.random.randint(400, 90_000, n),
+        "debt_ratio":           np.random.uniform(0, 1, n),
+        "repayment_rate":       np.random.uniform(0.3, 1.0, n),
+        "subsidy_count":        np.random.randint(0, 7, n),
+        "has_violations":       np.random.randint(0, 2, n),
+        "tax_debt":             np.random.randint(0, 5_000_000, n),
+        "requested_amount":     np.random.randint(5_000_000, 150_000_000, n),
+    })
+    return df
