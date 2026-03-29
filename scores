@@ -1,0 +1,55 @@
+def calculate_scores(features: pd.DataFrame) -> pd.Series:
+    """
+    Взвешенная сумма факторов → итоговый скор 0–100.
+    """
+    score = sum(
+        features[factor] * weight
+        for factor, weight in FACTOR_WEIGHTS.items()
+    )
+    return score.round(1)
+ 
+ 
+def get_status(score: float) -> str:
+    if score >= 75:
+        return "Рекомендован"
+    elif score >= 55:
+        return "На рассмотрении"
+    else:
+        return "Требует проверки"
+ 
+ 
+def generate_explanation(row: pd.Series, features_row: pd.Series) -> str:
+    """
+    Генерирует текстовое объяснение скора на русском языке.
+    В продакшене — на основе SHAP values из реальной ML-модели.
+    """
+    score = row["score"]
+    strengths = []
+    weaknesses = []
+ 
+    if features_row["efficiency"] >= 75:
+        strengths.append("высокая эффективность использования субсидий")
+    else:
+        weaknesses.append("низкая эффективность предыдущих субсидий")
+ 
+    if features_row["history"] >= 75:
+        strengths.append("хорошая история субсидирования")
+    else:
+        weaknesses.append("недостаточная история субсидий")
+ 
+    if features_row["growth"] >= 70:
+        strengths.append("устойчивый рост производства")
+    else:
+        weaknesses.append("слабая динамика роста")
+ 
+    if score >= 75:
+        return f"Хозяйство демонстрирует: {', '.join(strengths)}. Рекомендовано к первоочередному рассмотрению."
+    elif score >= 55:
+        parts = []
+        if strengths:
+            parts.append(f"Сильные стороны: {', '.join(strengths)}")
+        if weaknesses:
+            parts.append(f"Зоны риска: {', '.join(weaknesses)}")
+        return ". ".join(parts) + ". Требуется дополнительная проверка."
+    else:
+        return f"Выявлены существенные риски: {', '.join(weaknesses)}. Рекомендуется детальная верификация."
