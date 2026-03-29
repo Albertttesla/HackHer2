@@ -1,0 +1,17 @@
+def build_shortlist(results: pd.DataFrame, budget: float = 2_400_000_000) -> pd.DataFrame:
+    """
+    Формирует шортлист кандидатов в рамках бюджета.
+    Сортировка по скору, жадный алгоритм отбора.
+    """
+    sorted_df = results.sort_values("score", ascending=False).copy()
+    selected = []
+    remaining_budget = budget
+ 
+    for _, row in sorted_df.iterrows():
+        if row["requested_amount"] <= remaining_budget:
+            selected.append(row["id"])
+            remaining_budget -= row["requested_amount"]
+ 
+    shortlist = sorted_df[sorted_df["id"].isin(selected)].copy()
+    shortlist["shortlist_rank"] = range(1, len(shortlist) + 1)
+    return shortlist
